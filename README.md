@@ -1,2 +1,7 @@
 # scala-aws-s3
-s3 util
+
+# example
+
+S3("accessKey", "secretKey", "bucket").list.map { summary =>
+
+}
