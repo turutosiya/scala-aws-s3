@@ -4,12 +4,14 @@ import java.io.File
 import java.net.URL
 
 import com.amazonaws.AmazonServiceException
+import com.amazonaws.ClientConfiguration
 import com.amazonaws.auth._
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model._
 import com.amazonaws.services.s3.transfer.TransferManager
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Future
 
 object S3 {
 
@@ -31,7 +33,10 @@ case class S3(
    *
    */
   lazy val client =
-    new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey))
+    new AmazonS3Client(
+      new BasicAWSCredentials(accessKey, secretKey),
+      new ClientConfiguration()
+        .withTcpKeepAlive(false))
 
   /**
    * exists
@@ -41,7 +46,7 @@ case class S3(
    */
   def exists(key: String): Boolean =
     try {
-      client.getObject(bucket, key)
+      client.getObjectMetadata(bucket, key)
       true
     } catch {
       case e: AmazonServiceException =>
@@ -156,20 +161,12 @@ case class S3(
     //
     var objectListing: ObjectListing = null
     //
-    try {
-      //
-      do {
-        objectListing = client.listObjects(request)
-        val summaries = objectListing.getObjectSummaries
-        (0 to summaries.size - 1).foreach { i => keys += summaries.get(i).getKey() }
-        request.setMarker(objectListing.getNextMarker())
-      } while (objectListing.isTruncated())
-    } catch {
-      case e: AmazonServiceException =>
-
-      case t: Throwable =>
-        throw t
-    }
+    do {
+      objectListing = client.listObjects(request)
+      val summaries = objectListing.getObjectSummaries
+      (0 to summaries.size - 1).foreach { i => keys += summaries.get(i).getKey() }
+      request.setMarker(objectListing.getNextMarker())
+    } while (objectListing.isTruncated())
     //
     keys.toList
   }
@@ -191,20 +188,12 @@ case class S3(
     //
     var objectListing: ObjectListing = null
     //
-    try {
-      //
-      do {
-        objectListing = client.listObjects(request)
-        val prefixes = objectListing.getCommonPrefixes()
-        (0 to prefixes.size - 1).foreach { i => keys += prefixes.get(i) }
-        request.setMarker(objectListing.getNextMarker())
-      } while (objectListing.isTruncated())
-    } catch {
-      case e: AmazonServiceException =>
-        false
-      case t: Throwable =>
-        throw t
-    }
+    do {
+      objectListing = client.listObjects(request)
+      val prefixes = objectListing.getCommonPrefixes()
+      (0 to prefixes.size - 1).foreach { i => keys += prefixes.get(i) }
+      request.setMarker(objectListing.getNextMarker())
+    } while (objectListing.isTruncated())
     //
     keys.toList
   }
