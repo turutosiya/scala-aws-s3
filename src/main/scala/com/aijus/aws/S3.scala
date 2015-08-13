@@ -110,9 +110,9 @@ case class S3(
    * @param dst
    */
   def copy(src: String, dst: String): S3 = {
-    // copy
-    client.copyObject(bucket, src, bucket, dst)
-    // return this for method chain
+    list(src) map { key =>
+      client.copyObject(bucket, key, bucket, key.replace(src, dst))
+    }
     this
   }
 
@@ -130,28 +130,10 @@ case class S3(
   /**
    * url
    *
-   * @param summary
-   * @return URL
-   */
-  def url(summary: S3ObjectSummary): URL =
-    url(summary.getBucketName, summary.getKey)
-
-  /**
-   * url
-   *
    * @param key
    * @return URL
    */
   def url(key: String): URL =
-    url(bucket, key)
-
-  /**
-   * bucket
-   * @param bucket
-   * @param key
-   * @return URL
-   */
-  def url(bucket: String, key: String): URL =
     client.getUrl(bucket, key)
     /* client.generatePresignedUrl(
       new GeneratePresignedUrlRequest(
@@ -164,24 +146,32 @@ case class S3(
    * @param prefix
    * @return List[S3ObjectSummary]
    */
-  def list(prefix: String): List[S3ObjectSummary] = {
+  def list(prefix: String): List[String] = {
     //
-    var list: ListBuffer[S3ObjectSummary] = ListBuffer[S3ObjectSummary]()
+    var keys: ListBuffer[String] = ListBuffer[String]()
     //
-    var nextMarker = ""
+    val request = new ListObjectsRequest()
+    request.setBucketName(bucket)
+    request.setPrefix(prefix)
     //
-    while (nextMarker != null) {
-      val request = new ListObjectsRequest()
-      request.setBucketName(bucket)
-      request.setPrefix(prefix)
-      request.setMarker(nextMarker)
-      val objects = client.listObjects(request)
-      val summaries = objects.getObjectSummaries
-      (0 to summaries.size - 1).foreach { i => list += summaries.get(i) }
-      nextMarker = objects.getNextMarker
+    var objectListing: ObjectListing = null
+    //
+    try {
+      //
+      do {
+        objectListing = client.listObjects(request)
+        val summaries = objectListing.getObjectSummaries
+        (0 to summaries.size - 1).foreach { i => keys += summaries.get(i).getKey() }
+        request.setMarker(objectListing.getNextMarker())
+      } while (objectListing.isTruncated())
+    } catch {
+      case e: AmazonServiceException =>
+
+      case t: Throwable =>
+        throw t
     }
     //
-    list.toList
+    keys.toList
   }
 
   /**
@@ -192,22 +182,30 @@ case class S3(
    */
   def subdirs(prefix: String): List[String] = {
     //
-    var subdirs: ListBuffer[String] = ListBuffer[String]()
+    var keys: ListBuffer[String] = ListBuffer[String]()
     //
-    var nextMarker = ""
+    val request = new ListObjectsRequest()
+    request.setBucketName(bucket)
+    request.setPrefix(prefix)
+    request.setDelimiter("/")
     //
-    while (nextMarker != null) {
-      val request = new ListObjectsRequest()
-      request.setBucketName(bucket)
-      request.setPrefix(prefix)
-      request.setMarker(nextMarker)
-      request.setDelimiter("/")
-      val objects = client.listObjects(request)
-      val prefixes = objects.getCommonPrefixes()
-      (0 to prefixes.size - 1).foreach { i => subdirs += prefixes.get(i) }
-      nextMarker = objects.getNextMarker
+    var objectListing: ObjectListing = null
+    //
+    try {
+      //
+      do {
+        objectListing = client.listObjects(request)
+        val prefixes = objectListing.getCommonPrefixes()
+        (0 to prefixes.size - 1).foreach { i => keys += prefixes.get(i) }
+        request.setMarker(objectListing.getNextMarker())
+      } while (objectListing.isTruncated())
+    } catch {
+      case e: AmazonServiceException =>
+        false
+      case t: Throwable =>
+        throw t
     }
     //
-    subdirs.toList
+    keys.toList
   }
 }
