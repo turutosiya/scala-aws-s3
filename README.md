@@ -4,6 +4,11 @@ A simple AWS/S3 wrapper
 
 # example
 
+## `build.sbt`
+
+	resolvers += "Scala AWS S3 Repository" at "http://turutosiya.github.io/scala-aws-s3/"
+	libraryDependencies += "com.aijus" % "scala-aws-s3_2.11" % "0.1.0"
+
 ## list objects
 
     import com.aijus.aws.S3
