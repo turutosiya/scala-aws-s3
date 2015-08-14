@@ -1,6 +1,8 @@
+organization := "com.aijus"
+
 name := """scala-aws-s3"""
 
-version := "0.1.0"
+version := "0.1.2"
 
 scalaVersion := "2.11.7"
 
@@ -29,4 +31,4 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.10.10"
 
 //
-publishTo := Some(Resolver.file("file",file("releases")))
+publishTo := Some(Resolver.file("file",file("target/releases")))
