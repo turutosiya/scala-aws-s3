@@ -3,15 +3,13 @@ package com.aijus.aws
 import java.io.File
 import java.net.URL
 
-import com.amazonaws.AmazonServiceException
-import com.amazonaws.ClientConfiguration
+import com.amazonaws.{AmazonServiceException, ClientConfiguration}
 import com.amazonaws.auth._
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model._
 import com.amazonaws.services.s3.transfer.TransferManager
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Future
 
 object S3 {
 
@@ -93,7 +91,10 @@ case class S3(
    * @return
    */
   def put(file: File, key: String): S3 = {
-    client.putObject(new PutObjectRequest(bucket, key, file))
+    // get
+    new TransferManager(client)
+      .upload(new PutObjectRequest(bucket, key, file))
+      .waitForCompletion()
     this
   }
 
