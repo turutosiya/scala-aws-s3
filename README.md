@@ -2,7 +2,7 @@
 
 A simple AWS/S3 wrapper
 
-# code example
+# Usage
 
 ## `build.sbt`
 
