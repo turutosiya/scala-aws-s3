@@ -1,7 +1,8 @@
-package com.aijus.aws
+package com.turutosiya.aws
 
 import java.io.File
 import java.net.URL
+import java.util.Date
 
 import com.amazonaws.{AmazonServiceException, ClientConfiguration}
 import com.amazonaws.auth._
@@ -28,7 +29,7 @@ case class S3(
   bucket: String){
 
   /**
-   *
+   * client
    */
   lazy val client =
     new AmazonS3Client(
@@ -44,14 +45,29 @@ case class S3(
    */
   def exists(key: String): Boolean =
     try {
-      client.getObjectMetadata(bucket, key)
-      true
+      metadata(key).isInstanceOf[ObjectMetadata]
     } catch {
-      case e: AmazonServiceException =>
-        false
-      case t: Throwable =>
-        throw t
+      case e: AmazonServiceException => false
+      case t: Throwable => throw t
     }
+
+  /**
+   * metadata
+   *
+   * @param key
+   * @return com.amazonaws.services.s3.model.ObjectMetadata
+   */
+  def metadata(key: String): com.amazonaws.services.s3.model.ObjectMetadata =
+    client.getObjectMetadata(bucket, key)
+
+  /**
+   * lastModified
+   *
+   * @param key
+   * @return java.util.Date
+   */
+  def lastModified(key: String): Date =
+    metadata(key).getLastModified
 
   /**
    * get
@@ -101,7 +117,7 @@ case class S3(
   /**
    *
    * @param key
-   * @return
+   * @return S3
    */
   def delete(key: String): S3 = {
     //
@@ -114,6 +130,7 @@ case class S3(
    *
    * @param src
    * @param dst
+   * @return S3
    */
   def copy(src: String, dst: String): S3 = {
     list(src) map { key =>
@@ -141,10 +158,6 @@ case class S3(
    */
   def url(key: String): URL =
     client.getUrl(bucket, key)
-    /* client.generatePresignedUrl(
-      new GeneratePresignedUrlRequest(
-        bucket,
-        key)) */
 
   /**
    * list
