@@ -14,7 +14,7 @@ A simple AWS/S3 wrapper
 
     import com.turutosiya.aws.S3
     ...
-    S3("accessKey", "secretKey", "bucket").list.map { keys =>
+    S3("accessKey", "secretKey", "bucket").list.map { key =>
         // do things
     }
 
