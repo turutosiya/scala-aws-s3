@@ -2,6 +2,8 @@
 
 A Simple Amazon S3 Wrapper for Scala
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/turutosiya/scala-aws-s3?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+
 # Usage
 
 ## `build.sbt`
