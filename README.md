@@ -1,6 +1,6 @@
 # scala-aws-s3
 
-A simple AWS/S3 wrapper
+A Simple Amazon S3 Wrapper for Scala
 
 # Usage
 
@@ -12,14 +12,18 @@ A simple AWS/S3 wrapper
 
 ## list objects
 
-    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").list.map { key =>
-        // do things
-    }
+    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket")
+        .list.map { key =>
+            // do things
+        }
 
 ## get object
 
-    val file: File = com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").get("key/of/the/object")
+    val file: File =
+        com.turutosiya.aws.S3("accessKey", "secretKey", "bucket")
+            .get("key/of/the/object")
 
 ## put object
 
-    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").put(new File("/path/to/the/file/to/be/uploaded"), "key/of/the/object")
+    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket")
+        .put("/path/to/the/file/to/be/uploaded", "key/of/the/object")
