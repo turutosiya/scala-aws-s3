@@ -12,20 +12,14 @@ A simple AWS/S3 wrapper
 
 ## list objects
 
-    import com.turutosiya.aws.S3
-    ...
-    S3("accessKey", "secretKey", "bucket").list.map { key =>
+    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").list.map { key =>
         // do things
     }
 
 ## get object
 
-    import com.turutosiya.aws.S3
-    ...
-    val file: File = S3("accessKey", "secretKey", "bucket").get("key/of/the/object")
+    val file: File = com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").get("key/of/the/object")
 
 ## put object
 
-    import com.turutosiya.aws.S3
-    ...
-    S3("accessKey", "secretKey", "bucket").put(new File("/path/to/the/file/to/be/uploaded"), "key/of/the/object")
+    com.turutosiya.aws.S3("accessKey", "secretKey", "bucket").put(new File("/path/to/the/file/to/be/uploaded"), "key/of/the/object")
