@@ -10,7 +10,7 @@ A Simple Amazon S3 Wrapper for Scala
 
     resolvers += "scala-aws-s3" at "http://turutosiya.github.io/scala-aws-s3/"
 
-    libraryDependencies += "com.turutosiya" % "scala-aws-s3_2.11" % "1.10.18"
+    libraryDependencies += "com.turutosiya" % "scala-aws-s3_2.11" % "1.10.19"
 
 ## list objects
 
