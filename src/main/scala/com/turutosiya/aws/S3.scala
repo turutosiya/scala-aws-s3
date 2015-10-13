@@ -14,28 +14,40 @@ import scala.collection.mutable.ListBuffer
 
 object S3 {
 
+  /**
+   * apply
+   *
+   * @param accessKey
+   * @param secretKey
+   * @param bucket
+   * @return
+   */
+  def apply(
+    accessKey: String,
+    secretKey: String,
+    bucket: String): S3 = {
+    // config
+    val config = new ClientConfiguration()
+      .withTcpKeepAlive(true)
+    config.setUseGzip(true)
+    //
+    S3(
+      new AmazonS3Client(
+        new BasicAWSCredentials(accessKey, secretKey),
+        config),
+      bucket)
+  }
 }
 
 /**
  * S3 class
  * 
- * @param accessKey
- * @param secretKey
+ * @param client
  * @param bucket
  */
 case class S3(
-  accessKey: String,
-  secretKey: String,
+  client: AmazonS3Client,
   bucket: String){
-
-  /**
-   * client
-   */
-  lazy val client =
-    new AmazonS3Client(
-      new BasicAWSCredentials(accessKey, secretKey),
-      new ClientConfiguration()
-        .withTcpKeepAlive(false))
 
   /**
    * exists
@@ -163,7 +175,7 @@ case class S3(
    * list
    *
    * @param prefix
-   * @return List[S3ObjectSummary]
+   * @return List[String]
    */
   def list(prefix: String): List[String] = {
     //
