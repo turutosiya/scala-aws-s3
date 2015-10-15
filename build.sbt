@@ -2,7 +2,7 @@ organization := "com.turutosiya"
 
 name := """scala-aws-s3"""
 
-version := "1.10.26"
+version := "1.10.26-1"
 
 scalaVersion := "2.11.7"
 
