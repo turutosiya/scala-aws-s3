@@ -87,7 +87,7 @@ case class S3(
    * @param key
    */
   def get(key: String): File =
-    get(key, File.createTempFile("com_aijus_aws_s3", "1"))
+    get(key, File.createTempFile("com_turutosiya_aws_s3", "1"))
 
   /**
    * get
