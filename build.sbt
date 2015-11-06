@@ -2,7 +2,7 @@ organization := "com.turutosiya"
 
 name := """scala-aws-s3"""
 
-version := "1.10.31"
+version := "1.10.32"
 
 scalaVersion := "2.11.7"
 
@@ -28,7 +28,7 @@ ideaExcludeFolders += ".idea"
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 
 // aws sdk
-libraryDependencies += "com.amazonaws" % "aws-java-sdk-s3" % "1.10.31"
+libraryDependencies += "com.amazonaws" % "aws-java-sdk-s3" % "1.10.32"
 
 //
 publishTo := Some(Resolver.file("file",file("target/releases")))
