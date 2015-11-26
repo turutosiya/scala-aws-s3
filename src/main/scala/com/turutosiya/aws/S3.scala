@@ -86,8 +86,12 @@ case class S3(
    *
    * @param key
    */
-  def get(key: String): File =
-    get(key, File.createTempFile("com_turutosiya_aws_s3", "1"))
+  def get(key: String): File = {
+    val file = File.createTempFile("com_turutosiya_aws_s3", "tmp")
+    file.deleteOnExit()
+    get(key, file)
+  }
+
 
   /**
    * get
