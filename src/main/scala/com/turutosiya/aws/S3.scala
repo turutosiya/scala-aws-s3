@@ -1,14 +1,15 @@
 package com.turutosiya.aws
 
-import java.io.File
+import java.io.{File, FileOutputStream}
 import java.net.URL
 import java.util.Date
 
 import com.amazonaws.{AmazonServiceException, ClientConfiguration}
 import com.amazonaws.auth._
-import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
 import com.amazonaws.services.s3.model._
-import com.amazonaws.services.s3.transfer.TransferManager
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder
 
 import scala.collection.mutable.ListBuffer
 
@@ -29,12 +30,14 @@ object S3 {
     // config
     val config = new ClientConfiguration()
       .withTcpKeepAlive(true)
-    config.setUseGzip(true)
     //
     S3(
-      new AmazonS3Client(
-        new BasicAWSCredentials(accessKey, secretKey),
-        config),
+      AmazonS3Client
+        .builder()
+        .withRegion(Regions.AP_NORTHEAST_1)
+        .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+        .withClientConfiguration(config)
+        .build(),
       bucket)
   }
 }
@@ -46,7 +49,7 @@ object S3 {
  * @param bucket
  */
 case class S3(
-  client: AmazonS3Client,
+  client: AmazonS3,
   bucket: String){
 
   /**
@@ -99,10 +102,17 @@ case class S3(
    * @param key
    */
   def get(key: String, local: File): File = {
-    // get
-    new TransferManager(client)
-      .download(new GetObjectRequest(bucket, key), local)
-      .waitForCompletion()
+    val in = client.getObject(bucket, key).getObjectContent
+    val out = new FileOutputStream(local)
+    val buf = new Array[Byte](1024)
+    var read = in.read(buf)
+    while(0 < read){
+      out.write(buf, 0, read)
+      read = in.read(buf)
+    }
+    in.close()
+    out.flush()
+    out.close()
     //
     local
   }
@@ -124,7 +134,10 @@ case class S3(
    */
   def put(file: File, key: String): S3 = {
     // get
-    new TransferManager(client)
+    TransferManagerBuilder
+      .standard()
+      .withS3Client(client)
+      .build()
       .upload(new PutObjectRequest(bucket, key, file))
       .waitForCompletion()
     this
