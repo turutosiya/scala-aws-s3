@@ -3,6 +3,7 @@ package com.turutosiya.aws
 import java.io.{File, FileOutputStream}
 import java.net.URL
 import java.util.Date
+import java.util.zip.GZIPInputStream
 
 import com.amazonaws.{AmazonServiceException, ClientConfiguration}
 import com.amazonaws.auth._
@@ -102,7 +103,7 @@ case class S3(
    * @param key
    */
   def get(key: String, local: File): File = {
-    val in = client.getObject(bucket, key).getObjectContent
+    val in = new GZIPInputStream(client.getObject(bucket, key).getObjectContent)
     val out = new FileOutputStream(local)
     val buf = new Array[Byte](1024)
     var read = in.read(buf)
