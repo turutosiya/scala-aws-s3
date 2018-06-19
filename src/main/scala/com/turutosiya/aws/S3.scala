@@ -103,7 +103,11 @@ case class S3(
    * @param key
    */
   def get(key: String, local: File): File = {
-    val in = new GZIPInputStream(client.getObject(bucket, key).getObjectContent)
+    val o = client.getObject(bucket, key)
+    val in = o.getObjectMetadata.getContentEncoding match {
+      case "gzip" => new GZIPInputStream(o.getObjectContent)
+      case _ => o.getObjectContent
+    }
     val out = new FileOutputStream(local)
     val buf = new Array[Byte](1024)
     var read = in.read(buf)
@@ -114,6 +118,7 @@ case class S3(
     in.close()
     out.flush()
     out.close()
+    o.close()
     //
     local
   }
